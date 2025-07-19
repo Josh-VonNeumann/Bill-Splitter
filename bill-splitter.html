@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bill Splitter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .main-content {
+            padding: 20px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #5a67d8;
+        }
+
+        .btn-danger {
+            background: #e53e3e;
+        }
+
+        .btn-danger:hover {
+            background: #c53030;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+
+        .item-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 10px;
+            align-items: end;
+            margin-bottom: 10px;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+
+        .item-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .friends-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .friend-card {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+
+        .summary {
+            background: #e8f5e8;
+            border: 1px solid #c3e6c3;
+        }
+
+        .summary h2 {
+            color: #2d5016;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .total-row.grand-total {
+            font-weight: bold;
+            font-size: 20px;
+            border-top: 2px solid #2d5016;
+            padding-top: 10px;
+        }
+
+        .split-results {
+            margin-top: 20px;
+        }
+
+        .person-split {
+            background: white;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid #c3e6c3;
+            overflow: hidden;
+        }
+
+        .person-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .person-header:hover {
+            background: #e9ecef;
+        }
+
+        .person-details {
+            padding: 15px;
+            display: none;
+        }
+
+        .person-details.expanded {
+            display: block;
+        }
+
+        .item-breakdown {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+
+        .item-breakdown h4 {
+            margin-bottom: 8px;
+            color: #495057;
+            font-size: 16px;
+        }
+
+        .breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .breakdown-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .toggle-icon {
+            transition: transform 0.3s;
+        }
+
+        .toggle-icon.expanded {
+            transform: rotate(180deg);
+        }
+
+        .tip-calculation-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .tip-calculation-option input[type="radio"] {
+            width: auto;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .item-row {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .friends-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧾 Bill Splitter</h1>
+            <p>Split your dining bills with friends easily</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Friends Section -->
+            <div class="section">
+                <h2>👥 Friends</h2>
+                <div class="form-group">
+                    <label for="friendName">Add Friend:</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="friendName" placeholder="Enter friend's name">
+                        <button class="btn" onclick="addFriend()">Add</button>
+                    </div>
+                </div>
+                <div id="friendsList"></div>
+            </div>
+
+            <!-- Items Section -->
+            <div class="section">
+                <h2>🍽️ Bill Items</h2>
+                <div id="itemsList"></div>
+                <button class="btn" onclick="addItem()">+ Add Item</button>
+            </div>
+
+            <!-- Tax & Tip Section -->
+            <div class="section">
+                <h2>💰 Tax & Tip Settings</h2>
+                <div class="form-group">
+                    <label>Calculate tip based on:</label>
+                    <div class="tip-calculation-option">
+                        <input type="radio" id="tipPreTax" name="tipCalculation" value="pre-tax" checked onchange="calculateSplit()">
+                        <label for="tipPreTax" style="margin-bottom: 0;">Pre-tax total (subtotal only)</label>
+                    </div>
+                    <div class="tip-calculation-option">
+                        <input type="radio" id="tipPostTax" name="tipCalculation" value="post-tax" onchange="calculateSplit()">
+                        <label for="tipPostTax" style="margin-bottom: 0;">Post-tax total (subtotal + tax)</label>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div class="form-group">
+                        <label for="defaultTaxRate">Default Tax Rate (%):</label>
+                        <input type="number" id="defaultTaxRate" value="8.5" step="0.1" min="0" max="100">
+                    </div>
+                    <div class="form-group">
+                        <label for="tipPercentage">Tip Percentage (%):</label>
+                        <input type="number" id="tipPercentage" value="18" step="0.1" min="0" max="100">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Section -->
+            <div class="section summary">
+                <h2>📊 Summary</h2>
+                <div id="summary"></div>
+                <div class="split-results" id="splitResults"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let friends = [];
+        let items = [];
+        let itemCounter = 0;
+
+        function addFriend() {
+            const nameInput = document.getElementById('friendName');
+            const name = nameInput.value.trim();
+            
+            if (name && !friends.includes(name)) {
+                friends.push(name);
+                nameInput.value = '';
+                updateFriendsList();
+                updateItemAssignments();
+                calculateSplit();
+            }
+        }
+
+        function removeFriend(name) {
+            friends = friends.filter(f => f !== name);
+            updateFriendsList();
+            updateItemAssignments();
+            calculateSplit();
+        }
+
+        function updateFriendsList() {
+            const friendsList = document.getElementById('friendsList');
+            friendsList.innerHTML = '';
+            
+            if (friends.length === 0) {
+                friendsList.innerHTML = '<p style="color: #6c757d; font-style: italic;">No friends added yet</p>';
+                return;
+            }
+
+            const friendsGrid = document.createElement('div');
+            friendsGrid.className = 'friends-grid';
+            
+            friends.forEach(friend => {
+                const friendCard = document.createElement('div');
+                friendCard.className = 'friend-card';
+                friendCard.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>${friend}</span>
+                        <button class="btn btn-danger btn-small" onclick="removeFriend('${friend}')">Remove</button>
+                    </div>
+                `;
+                friendsGrid.appendChild(friendCard);
+            });
+            
+            friendsList.appendChild(friendsGrid);
+        }
+
+        function addItem() {
+            const itemId = `item-${itemCounter++}`;
+            const item = {
+                id: itemId,
+                name: '',
+                price: 0,
+                taxRate: parseFloat(document.getElementById('defaultTaxRate').value) || 8.5,
+                assignedTo: [...friends]
+            };
+            
+            items.push(item);
+            updateItemsList();
+        }
+
+        function removeItem(itemId) {
+            items = items.filter(item => item.id !== itemId);
+            updateItemsList();
+            calculateSplit();
+        }
+
+        function updateItemsList() {
+            const itemsList = document.getElementById('itemsList');
+            itemsList.innerHTML = '';
+            
+            if (items.length === 0) {
+                itemsList.innerHTML = '<p style="color: #6c757d; font-style: italic;">No items added yet</p>';
+                return;
+            }
+
+            items.forEach(item => {
+                const itemRow = document.createElement('div');
+                itemRow.className = 'item-row';
+                itemRow.innerHTML = `
+                    <div class="form-group">
+                        <label>Item Name:</label>
+                        <input type="text" value="${item.name}" placeholder="e.g., Caesar Salad" 
+                               onchange="updateItem('${item.id}', 'name', this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label>Price ($):</label>
+                        <input type="number" value="${item.price}" step="0.01" min="0" 
+                               onchange="updateItem('${item.id}', 'price', parseFloat(this.value))">
+                    </div>
+                    <div class="form-group">
+                        <label>Tax Rate (%):</label>
+                        <input type="number" value="${item.taxRate}" step="0.1" min="0" max="100" 
+                               onchange="updateItem('${item.id}', 'taxRate', parseFloat(this.value))">
+                    </div>
+                    <div style="align-self: end;">
+                        <button class="btn btn-danger btn-small" onclick="removeItem('${item.id}')">Remove</button>
+                    </div>
+                `;
+                
+                if (friends.length > 0) {
+                    const assignmentDiv = document.createElement('div');
+                    assignmentDiv.style.gridColumn = '1 / -1';
+                    assignmentDiv.style.marginTop = '10px';
+                    assignmentDiv.innerHTML = `
+                        <label>Split between:</label>
+                        <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px;">
+                            ${friends.map(friend => `
+                                <label style="display: flex; align-items: center; gap: 5px; margin-bottom: 0;">
+                                    <input type="checkbox" ${item.assignedTo.includes(friend) ? 'checked' : ''} 
+                                           onchange="toggleAssignment('${item.id}', '${friend}', this.checked)">
+                                    ${friend}
+                                </label>
+                            `).join('')}
+                        </div>
+                    `;
+                    itemRow.appendChild(assignmentDiv);
+                }
+                
+                itemsList.appendChild(itemRow);
+            });
+        }
+
+        function updateItem(itemId, field, value) {
+            const item = items.find(i => i.id === itemId);
+            if (item) {
+                item[field] = value;
+                calculateSplit();
+            }
+        }
+
+        function toggleAssignment(itemId, friend, isAssigned) {
+            const item = items.find(i => i.id === itemId);
+            if (item) {
+                if (isAssigned) {
+                    if (!item.assignedTo.includes(friend)) {
+                        item.assignedTo.push(friend);
+                    }
+                } else {
+                    item.assignedTo = item.assignedTo.filter(f => f !== friend);
+                }
+                calculateSplit();
+            }
+        }
+
+        function updateItemAssignments() {
+            items.forEach(item => {
+                item.assignedTo = item.assignedTo.filter(friend => friends.includes(friend));
+            });
+            updateItemsList();
+        }
+
+        function calculateSplit() {
+            const tipPercentage = parseFloat(document.getElementById('tipPercentage').value) || 0;
+            const tipCalculation = document.querySelector('input[name="tipCalculation"]:checked').value;
+            
+            let subtotal = 0;
+            let totalTax = 0;
+            
+            items.forEach(item => {
+                const itemSubtotal = item.price || 0;
+                const itemTax = itemSubtotal * (item.taxRate || 0) / 100;
+                
+                subtotal += itemSubtotal;
+                totalTax += itemTax;
+            });
+            
+            const tipBase = tipCalculation === 'pre-tax' ? subtotal : (subtotal + totalTax);
+            const tipAmount = tipBase * tipPercentage / 100;
+            const grandTotal = subtotal + totalTax + tipAmount;
+            
+            const tipLabel = tipCalculation === 'pre-tax' ? 'pre-tax' : 'post-tax';
+            
+            const summary = document.getElementById('summary');
+            summary.innerHTML = `
+                <div class="total-row">
+                    <span>Subtotal:</span>
+                    <span>$${subtotal.toFixed(2)}</span>
+                </div>
+                <div class="total-row">
+                    <span>Tax:</span>
+                    <span>$${totalTax.toFixed(2)}</span>
+                </div>
+                <div class="total-row">
+                    <span>Tip (${tipPercentage}% ${tipLabel}):</span>
+                    <span>$${tipAmount.toFixed(2)}</span>
+                </div>
+                <div class="total-row grand-total">
+                    <span>Grand Total:</span>
+                    <span>$${grandTotal.toFixed(2)}</span>
+                </div>
+            `;
+            
+            calculatePersonalSplits(subtotal, totalTax, tipAmount, grandTotal, tipCalculation);
+        }
+
+        function calculatePersonalSplits(subtotal, totalTax, tipAmount, grandTotal, tipCalculation) {
+            const splitResults = document.getElementById('splitResults');
+            
+            if (friends.length === 0) {
+                splitResults.innerHTML = '<p style="color: #6c757d; font-style: italic;">Add friends to see split results</p>';
+                return;
+            }
+            
+            const personalTotals = {};
+            const tipPercentage = parseFloat(document.getElementById('tipPercentage').value) || 0;
+            
+            friends.forEach(friend => {
+                let personalSubtotal = 0;
+                let personalTax = 0;
+                let itemsConsumed = [];
+                
+                items.forEach(item => {
+                    if (item.assignedTo.includes(friend) && item.assignedTo.length > 0) {
+                        const itemShare = (item.price || 0) / item.assignedTo.length;
+                        const taxShare = itemShare * (item.taxRate || 0) / 100;
+                        const tipBase = tipCalculation === 'pre-tax' ? itemShare : (itemShare + taxShare);
+                        const tipShare = tipBase * tipPercentage / 100;
+                        
+                        personalSubtotal += itemShare;
+                        personalTax += taxShare;
+                        
+                        itemsConsumed.push({
+                            name: item.name || 'Unnamed Item',
+                            originalPrice: item.price || 0,
+                            share: itemShare,
+                            taxRate: item.taxRate || 0,
+                            taxAmount: taxShare,
+                            tipContribution: tipShare,
+                            splitWith: item.assignedTo.length
+                        });
+                    }
+                });
+                
+                const personalTipBase = tipCalculation === 'pre-tax' ? personalSubtotal : (personalSubtotal + personalTax);
+                const personalTip = personalTipBase * tipPercentage / 100;
+                const personalTotal = personalSubtotal + personalTax + personalTip;
+                
+                personalTotals[friend] = {
+                    subtotal: personalSubtotal,
+                    tax: personalTax,
+                    tip: personalTip,
+                    total: personalTotal,
+                    items: itemsConsumed
+                };
+            });
+            
+            splitResults.innerHTML = `
+                <h3 style="margin-bottom: 15px; color: #2d5016;">💸 Individual Amounts</h3>
+                ${friends.map(friend => {
+                    const totals = personalTotals[friend];
+                    const friendId = friend.replace(/\s+/g, '_');
+                    return `
+                        <div class="person-split">
+                            <div class="person-header" onclick="togglePersonDetails('${friendId}')">
+                                <div>
+                                    <strong>${friend}</strong>
+                                    <div style="font-size: 14px; color: #6c757d;">
+                                        Subtotal: $${totals.subtotal.toFixed(2)} | 
+                                        Tax: $${totals.tax.toFixed(2)} | 
+                                        Tip: $${totals.tip.toFixed(2)}
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="font-weight: bold; font-size: 18px; color: #2d5016;">
+                                        $${totals.total.toFixed(2)}
+                                    </div>
+                                    <span class="toggle-icon" id="icon-${friendId}">▼</span>
+                                </div>
+                            </div>
+                            <div class="person-details" id="details-${friendId}">
+                                <h4 style="margin-bottom: 15px; color: #495057;">📋 Consumption Breakdown</h4>
+                                ${totals.items.length === 0 ? 
+                                    '<p style="color: #6c757d; font-style: italic;">No items consumed</p>' :
+                                    totals.items.map(item => `
+                                        <div class="item-breakdown">
+                                            <h4>${item.name} ${item.splitWith > 1 ? `(split ${item.splitWith} ways)` : ''}</h4>
+                                            <div class="breakdown-row">
+                                                <span>Item price share:</span>
+                                                <span>$${item.share.toFixed(2)} ${item.splitWith > 1 ? `(of $${item.originalPrice.toFixed(2)})` : ''}</span>
+                                            </div>
+                                            <div class="breakdown-row">
+                                                <span>Tax (${item.taxRate}%):</span>
+                                                <span>$${item.taxAmount.toFixed(2)}</span>
+                                            </div>
+                                            <div class="breakdown-row">
+                                                <span>Tip contribution:</span>
+                                                <span>$${item.tipContribution.toFixed(2)}</span>
+                                            </div>
+                                            <div class="breakdown-row" style="font-weight: bold; border-top: 1px solid #dee2e6; padding-top: 5px; margin-top: 5px;">
+                                                <span>Item total:</span>
+                                                <span>$${(item.share + item.taxAmount + item.tipContribution).toFixed(2)}</span>
+                                            </div>
+                                        </div>
+                                    `).join('')
+                                }
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            `;
+        }
+
+        function togglePersonDetails(friendId) {
+            const details = document.getElementById(`details-${friendId}`);
+            const icon = document.getElementById(`icon-${friendId}`);
+            
+            if (details.classList.contains('expanded')) {
+                details.classList.remove('expanded');
+                icon.classList.remove('expanded');
+            } else {
+                details.classList.add('expanded');
+                icon.classList.add('expanded');
+            }
+        }
+
+        document.getElementById('defaultTaxRate').addEventListener('input', calculateSplit);
+        document.getElementById('tipPercentage').addEventListener('input', calculateSplit);
+
+        document.getElementById('friendName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addFriend();
+            }
+        });
+
+        addItem();
+    </script>
+</body>
+</html>
