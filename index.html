@@ -254,6 +254,39 @@
             .friends-grid {
                 grid-template-columns: 1fr;
             }
+            
+            /* Mobile checkbox styling */
+            input[type="checkbox"] {
+                width: 20px !important;
+                height: 20px !important;
+                margin: 0 !important;
+                transform: scale(1.2);
+                cursor: pointer;
+            }
+            
+            /* Better touch targets for checkbox labels on mobile */
+            label {
+                min-height: 44px;
+                display: flex !important;
+                align-items: center;
+                padding: 8px;
+                margin-bottom: 0 !important;
+                cursor: pointer;
+            }
+            
+            /* Specific styling for split between checkboxes */
+            .item-row label[style*="display: flex"] {
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 6px;
+                margin-bottom: 5px !important;
+                padding: 10px;
+                transition: background-color 0.2s;
+            }
+            
+            .item-row label[style*="display: flex"]:hover {
+                background: #e9ecef;
+            }
         }
     </style>
 </head>
